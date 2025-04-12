@@ -1,4 +1,14 @@
-# Entry point for the backend service
+from fastapi import FastAPI
+from backend.core.processor import process_input
 
-if __name__ == '__main__':
-    print("Starting ALICE backend...")
+app = FastAPI()
+
+@app.get("/")
+def root():
+    return {"message": "ALICE is online!"}
+
+@app.post("/ask")
+def ask_alice(payload: dict):
+    user_input = payload.get("query", "")
+    response = process_input(user_input)
+    return {"response": response}
