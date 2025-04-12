@@ -1,2 +1,5 @@
 fastapi
 uvicorn
+SpeechRecognition
+pyttsx3
+pyaudio
