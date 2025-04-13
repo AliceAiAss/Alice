@@ -1,12 +1,9 @@
 services:
   - type: web
-    name: alice-api
+    name: alice-backend
     env: python
     plan: free
     buildCommand: |
       apt-get update && apt-get install -y ffmpeg
       pip install -r backend/requirements.txt
     startCommand: uvicorn backend.main:app --host 0.0.0.0 --port 10000
-    envVars:
-      - key: PORT
-        value: 10000
