@@ -1,15 +1,18 @@
 import speech_recognition as sr
 
-def listen():
+def listen(audio_file_path: str) -> str:
+    # Initialize recognizer
     recognizer = sr.Recognizer()
-    with sr.Microphone() as source:
-        print("🎙️ Listening...")
-        audio = recognizer.listen(source)
+    
+    # Load the audio file
+    with sr.AudioFile(audio_file_path) as source:
+        audio = recognizer.record(source)
+
     try:
-        query = recognizer.recognize_google(audio)
-        print(f"🗣️ You said: {query}")
-        return query
+        # Use Google's speech recognition API to transcribe
+        transcription = recognizer.recognize_google(audio)
+        return transcription
     except sr.UnknownValueError:
-        return "Sorry, I didn't catch that."
+        return "Could not understand audio"
     except sr.RequestError:
-        return "Speech recognition service unavailable."
+        return "Error with the speech recognition service"

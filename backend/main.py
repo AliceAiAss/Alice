@@ -1,29 +1,33 @@
-from fastapi import FastAPI, Request
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
 import os
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import FileResponse
+from pydub import AudioSegment
 
 app = FastAPI()
 
-# Enable CORS for local testing
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Folder to save uploaded files
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Serve frontend
-app.mount("/web", StaticFiles(directory="../frontend/web"), name="web")
+@app.post("/api/listen")
+async def listen_audio(file: UploadFile = File(...)):
+    # Save uploaded audio file to the uploads folder
+    file_location = os.path.join(UPLOAD_FOLDER, file.filename)
+    with open(file_location, "wb") as f:
+        f.write(await file.read())
+    
+    # Process the uploaded audio file (convert to WAV)
+    try:
+        audio = AudioSegment.from_file(file_location)  # Reads file
+        processed_file_location = file_location.replace(".wav", "_processed.wav")
+        audio.export(processed_file_location, format="wav")  # Save as processed file
+        return {"message": f"Audio file '{file.filename}' received, saved, and processed.", "processed_file": processed_file_location}
+    except Exception as e:
+        return {"message": "Error processing audio file", "error": str(e)}
 
-# ALICE API endpoint
-@app.post("/ask")
-async def ask(request: Request):
-    data = await request.json()
-    message = data.get("message")
-    
-    # Dummy reply (replace with actual ALICE logic)
-    response = f"Received: {message}"
-    
-    return JSONResponse(content={"response": response})
+@app.get("/api/download/{file_name}")
+async def download_file(file_name: str):
+    file_path = f"uploads/{file_name}"
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type="audio/wav", filename=file_name)
+    return {"message": "File not found"}

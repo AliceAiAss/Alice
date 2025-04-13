@@ -1,25 +1,32 @@
 body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    margin-top: 40px;
-    background-color: #f0f2f5;
-  }
-  
-  textarea {
-    font-size: 16px;
-    padding: 10px;
-  }
-  
-  button {
-    padding: 10px 15px;
-    margin: 10px;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  
-  #response {
-    font-weight: bold;
-    font-size: 18px;
-    color: #222;
-  }
-  
+  background: #111;
+  color: white;
+  font-family: Arial;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+#container {
+  text-align: center;
+}
+
+textarea {
+  width: 400px;
+  height: 300px;
+  margin-bottom: 10px;
+  background: #222;
+  color: white;
+  padding: 10px;
+}
+
+input {
+  width: 300px;
+  padding: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  margin-left: 10px;
+}

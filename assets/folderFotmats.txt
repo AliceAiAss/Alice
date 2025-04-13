@@ -1,0 +1,32 @@
+Alice
+    assets
+
+    backend
+        _pycache_
+        core
+            processor.py
+        modules
+        temp
+        utils
+            voice.py
+        voice
+            _pycache_
+            listner.py
+            speaker.py
+        main.py
+        requirements
+
+    
+    data
+
+    fronted
+        desktop
+            app.py
+        mobile
+            app.dart
+        web
+            index.html
+            script.js
+            style.css
+
+    models

@@ -1,27 +1,43 @@
-async function askAlice() {
-    const userInput = document.getElementById("userInput").value;
-    const res = await fetch("/ask", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: userInput }),
-    });
-  
-    const data = await res.json();
-    document.getElementById("response").innerText = data.response;
-  
-    // Speak the response
-    const synth = window.speechSynthesis;
-    const utter = new SpeechSynthesisUtterance(data.response);
-    synth.speak(utter);
-  }
-  
-  function startListening() {
-    const recognition = new webkitSpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.onresult = function (event) {
-      document.getElementById("userInput").value = event.results[0][0].transcript;
-      askAlice();
+const micButton = document.getElementById("mic-button");
+const resultDiv = document.getElementById("result");
+
+let mediaRecorder;
+let audioChunks = [];
+
+micButton.onclick = async () => {
+  if (!mediaRecorder || mediaRecorder.state === "inactive") {
+    audioChunks = [];
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.start();
+
+    mediaRecorder.ondataavailable = event => {
+      audioChunks.push(event.data);
     };
-    recognition.start();
+
+    mediaRecorder.onstop = async () => {
+      const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+      const formData = new FormData();
+      formData.append('file', audioBlob, 'audio.wav');
+
+      resultDiv.textContent = "⏳ Transcribing...";
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/listen", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await response.json();
+        resultDiv.textContent = `🗣️ You said: "${data.transcription || 'No speech detected.'}"`;
+      } catch (error) {
+        resultDiv.textContent = "❌ Error during transcription.";
+        console.error(error);
+      }
+    };
+
+    setTimeout(() => {
+      mediaRecorder.stop();
+    }, 4000); // Record for 4 seconds
   }
-  
+};
